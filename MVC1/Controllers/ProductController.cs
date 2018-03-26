@@ -2,7 +2,9 @@
 using MVC1.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -19,9 +21,25 @@ namespace MVC1.Controllers
         }
 
         // GET: Product/Details/5
-        public ActionResult Details(int id)
+        public ActionResult Details(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            else { 
+                
+                var product = db.Products.Find(id);
+
+                if (product == null)
+                {
+                    return HttpNotFound();
+                }
+                else
+                {
+                    return View(product);
+                }
+            }
         }
 
         // GET: Product/Create
@@ -56,24 +74,54 @@ namespace MVC1.Controllers
         }
 
         // GET: Product/Edit/5
-        public ActionResult Edit(int id)
+        public ActionResult Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            else
+            {
+
+                var product = db.Products.Find(id);
+
+                if (product == null)
+                {
+                    return HttpNotFound();
+                }
+                else
+                {
+                    return View(product);
+                }
+            }
+           
         }
 
         // POST: Product/Edit/5
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(Product product)
         {
             try
             {
                 // TODO: Add update logic here
 
-                return RedirectToAction("Index");
+                if (ModelState.IsValid) {
+
+                    db.Entry(product).State = EntityState.Modified;
+                    db.SaveChanges();
+
+                    return RedirectToAction("Index");
+
+                } else
+                {
+                    return View(product);
+                   
+                }
+                
             }
             catch
             {
-                return View();
+                return View(product);
             }
         }
 
