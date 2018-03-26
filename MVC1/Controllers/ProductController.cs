@@ -126,20 +126,55 @@ namespace MVC1.Controllers
         }
 
         // GET: Product/Delete/5
-        public ActionResult Delete(int id)
+        public ActionResult Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            else
+            {
+
+                var product = db.Products.Find(id);
+
+                if (product == null)
+                {
+                    return HttpNotFound();
+                }
+                else
+                {
+                    return View(product);
+                }
+            }
+
         }
 
         // POST: Product/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, FormCollection collection)
+        public ActionResult Delete(int id, Product product)
         {
             try
             {
                 // TODO: Add delete logic here
 
-                return RedirectToAction("Index");
+                if (ModelState.IsValid){
+
+                    product = db.Products.Find(id);
+
+                    if (product == null) {
+
+                        return HttpNotFound();
+                    } else { 
+                    
+                        db.Products.Remove(product);
+                        db.SaveChanges();
+
+                        return RedirectToAction("Index");
+                    }
+                } 
+                
+                    return View(product);           
+                
             }
             catch
             {
